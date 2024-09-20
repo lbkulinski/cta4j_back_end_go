@@ -2,14 +2,18 @@ package services
 
 import (
 	"cta4j_back_end_go/models"
+	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"net/http"
 	"os"
 )
 
-func GetTrains(stationId string) []models.Train {
+func GetTrains(context *gin.Context) {
 	client := resty.New()
 
 	apiKey := os.Getenv("TRAIN_API_KEY")
+
+	stationId := context.Param("stationId")
 
 	var trainResponse models.TrainResponse
 
@@ -23,8 +27,16 @@ func GetTrains(stationId string) []models.Train {
 		Get("https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx")
 
 	if err != nil || response.IsError() {
-		return nil
+		context.Status(http.StatusInternalServerError)
+
+		return
 	}
 
-	return trainResponse.Trains
+	if trainResponse.Trains == nil {
+		context.Status(http.StatusNotFound)
+
+		return
+	}
+
+	context.JSON(http.StatusOK, trainResponse.TrainBody.Trains)
 }

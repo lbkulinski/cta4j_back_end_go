@@ -2,12 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 )
 
 type Train struct {
-	Run            string    `json:"run"`
-	Line           Line      `json:"line"`
+	Run            int       `json:"run"`
+	Line           *Line     `json:"line"`
 	Destination    string    `json:"destination"`
 	Station        string    `json:"station"`
 	PredictionTime time.Time `json:"predictionTime"`
@@ -20,7 +21,7 @@ type Train struct {
 func (receiver *Train) UnmarshalJSON(data []byte) error {
 	type apiTrain struct {
 		Run            string `json:"rn"`
-		Line           Line   `json:"rt"`
+		Line           *Line  `json:"rt"`
 		Destination    string `json:"destNm"`
 		Station        string `json:"staNm"`
 		PredictionTime string `json:"prdt"`
@@ -38,7 +39,13 @@ func (receiver *Train) UnmarshalJSON(data []byte) error {
 		return jsonError
 	}
 
-	receiver.Run = train.Run
+	run, runError := strconv.Atoi(train.Run)
+
+	if runError != nil {
+		return runError
+	}
+
+	receiver.Run = run
 
 	receiver.Line = train.Line
 
@@ -46,7 +53,7 @@ func (receiver *Train) UnmarshalJSON(data []byte) error {
 
 	receiver.Station = train.Station
 
-	customFormat := "2006-01-02T03:04:05"
+	customFormat := "2006-01-02T15:04:05"
 
 	location, locationError := time.LoadLocation("America/Chicago")
 

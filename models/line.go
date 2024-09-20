@@ -22,6 +22,10 @@ func (receiver *Line) String() string {
 	return [...]string{"Red", "Blue", "Brown", "Green", "Orange", "Purple", "Pink", "Yellow"}[*receiver]
 }
 
+func (receiver *Line) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + receiver.String() + `"`), nil
+}
+
 func (receiver *Line) UnmarshalJSON(data []byte) error {
 	lineString := string(data)
 

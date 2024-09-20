@@ -3,14 +3,21 @@ package main
 import (
 	"cta4j_back_end_go/services"
 	"fmt"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	trains := services.GetTrains("41320")
+	router := gin.Default()
 
-	fmt.Println(len(trains))
+	api := router.Group("/api")
 
-	for _, value := range trains {
-		fmt.Printf("Train %+v\n", value)
+	api.GET("/trains/stations/:stationId", services.GetTrains)
+
+	err := router.Run("localhost:8080")
+
+	if err != nil {
+		fmt.Println(err)
+
+		return
 	}
 }
